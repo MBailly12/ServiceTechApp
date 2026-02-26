@@ -4,46 +4,646 @@
   <meta charset="UTF-8" />
   <title>ServiceTech AutoReporter</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-card: #111827;
+      --bg-card-soft: #1f2937;
+      --accent: #3b82f6;
+      --accent-soft: #1d4ed8;
+      --accent-muted: #93c5fd;
+      --text: #f9fafb;
+      --text-muted: #9ca3af;
+      --danger: #f97373;
+      --success: #4ade80;
+      --border: #1f2933;
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #1f2937, #020617);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 24px 12px;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1100px;
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 18px;
+      box-shadow:
+        0 24px 60px rgba(15, 23, 42, 0.85),
+        0 0 0 1px rgba(148, 163, 184, 0.08);
+      padding: 22px 22px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+      padding-bottom: 10px;
+    }
+
+    .title-block {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 30%;
+      background: radial-gradient(circle at 30% 20%, #facc15, #fb923c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #0f172a;
+      font-size: 18px;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    }
+
+    h1 {
+      font-size: 20px;
+      margin: 0;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .env-pill {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(22, 163, 74, 0.16);
+      color: #a7f3d0;
+      border: 1px solid rgba(16, 185, 129, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: linear-gradient(135deg, var(--bg-card), var(--bg-card-soft));
+      border-radius: var(--radius);
+      padding: 14px 14px 13px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-top: 4px;
+    }
+
+    label {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    input[type="text"],
+    textarea {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      border-radius: 7px;
+      padding: 7px 9px;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.6);
+      background: #020617;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 68px;
+      max-height: 180px;
+      line-height: 1.4;
+    }
+
+    .field-row {
+      display: flex;
+      gap: 7px;
+    }
+
+    .field-row > label {
+      flex: 1;
+    }
+
+    button {
+      align-self: flex-start;
+      border-radius: 999px;
+      border: none;
+      padding: 7px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+      color: #0b1120;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 5px;
+      box-shadow: 0 7px 20px rgba(37, 99, 235, 0.47);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.58);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+    }
+
+    button[disabled] {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--text-muted);
+      box-shadow: none;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(15, 23, 42, 0.85);
+      filter: none;
+    }
+
+    .status-pill {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.18);
+      color: var(--accent-muted);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      white-space: nowrap;
+    }
+
+    .status-pill.ok {
+      background: rgba(34, 197, 94, 0.16);
+      color: #bbf7d0;
+      border-color: rgba(34, 197, 94, 0.6);
+    }
+
+    .status-pill.error {
+      background: rgba(248, 113, 113, 0.17);
+      color: #fecaca;
+      border-color: rgba(248, 113, 113, 0.7);
+    }
+
+    .result-card {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      background: radial-gradient(circle at top left, #030712, #020617);
+      border-radius: var(--radius);
+      padding: 10px 10px 9px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      min-height: 80px;
+      max-height: 260px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .result-title {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    footer {
+      margin-top: 2px;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .api-url {
+      font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--accent-muted);
+    }
+  </style>
 </head>
 <body>
-  <h1>ServiceTech AutoReporter</h1>
+  <div class="app-shell">
+    <header>
+      <div class="title-block">
+        <div class="title-logo">ST</div>
+        <div>
+          <h1>ServiceTech AutoReporter</h1>
+          <div class="subtitle">Quickly create and look up field service reports.</div>
+        </div>
+      </div>
+      <div class="env-pill">Prod API</div>
+    </header>
 
-  <h2>Create Service Report</h2>
-  <form id="create-form">
-    <label>
-      Job ID:
-      <input type="text" id="jobId" required />
-    </label>
-    <br />
-    <label>
-      Technician:
-      <input type="text" id="technician" />
-    </label>
-    <br />
-    <label>
-      Customer:
-      <input type="text" id="customer" />
-    </label>
-    <br />
-    <label>
-      Notes:
-      <textarea id="notes"></textarea>
-    </label>
-    <br />
-    <button type="submit">Save Report</button>
-  </form>
+    <main>
+      <!-- LEFT COLUMN – CREATE REPORT -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Create service report</div>
+            <div class="card-subtitle">POST /report · saves a new report in DynamoDB</div>
+          </div>
+          <span id="create-status" class="status-pill">Idle</span>
+        </div>
 
-  <h2>Fetch Service Report</h2>
-  <form id="fetch-form">
+        <form id="create-form">
+
+  <!-- SECTION: Job + Tech + Activity -->
+  <div class="field-row">
     <label>
-      Job ID:
-      <input type="text" id="fetchJobId" required />
+      Job ID *
+      <input type="text" id="jobId" required placeholder="e.g. JOB-10023" />
     </label>
-    <button type="submit">Get Report</button>
-  </form>
 
-  <pre id="result"></pre>
+    <label>
+      Technician
+      <input type="text" id="technician" placeholder="Tech Name" />
+    </label>
+  </div>
 
-  <!-- JS wiring will come later -->
+  <div class="field-row">
+    <label>
+      Event Date
+      <input type="date" id="EventDate" />
+    </label>
+
+    <label>
+      Activity Type
+      <select id="ActivityType">
+        <option value="">Select Activity Type</option>
+        <option value="Install">Install</option>
+        <option value="Preventative Maintenance">Preventative Maintenance</option>
+        <option value="Eval">Eval</option>
+        <option value="Repair">Repair</option>
+      </select>
+    </label>
+  </div>
+
+  <!-- SECTION: Customer Info -->
+  <h3 style="margin-top:10px;">Customer Information</h3>
+
+  <div class="field-row">
+    <label>
+      First Name
+      <input type="text" id="CustomerFname" placeholder="First Name" />
+    </label>
+    <label>
+      Last Name
+      <input type="text" id="CustomerLname" placeholder="Last Name" />
+    </label>
+  </div>
+
+  <div class="field-row">
+    <label>
+      Address Line 1
+      <input type="text" id="CustomerAddressSt1" placeholder="Street Address" />
+    </label>
+    <label>
+      Address Line 2
+      <input type="text" id="CustomerAddressSt2" placeholder="Suite/Apt/etc." />
+    </label>
+  </div>
+
+  <div class="field-row">
+    <label>
+      City
+      <input type="text" id="CustomerCity" placeholder="City" />
+    </label>
+    <label>
+      Zip Code
+      <input type="text" id="CustomerZip" placeholder="Zip" />
+    </label>
+  </div>
+
+  <div class="field-row">
+    <label>
+      Customer Cell
+      <input type="text" id="CustomerCell" placeholder="Phone Number" />
+    </label>
+  </div>
+
+  <!-- SECTION: Equipment Info -->
+  <h3 style="margin-top:10px;">Equipment Information</h3>
+
+  <div class="field-row">
+    <label>
+      Equipment ID
+      <input type="text" id="EquipID" placeholder="Equipment ID" />
+    </label>
+
+    <label>
+      Manufacturer
+      <input type="text" id="EquipManufacturer" placeholder="Manufacturer" />
+    </label>
+  </div>
+
+  <div class="field-row">
+    <label>
+      Model
+      <input type="text" id="EquipModel" placeholder="Model" />
+    </label>
+
+    <label>
+      Serial Number
+      <input type="text" id="EquipSerial" placeholder="Serial Number" />
+    </label>
+  </div>
+
+  <div class="field-row">
+    <label>
+      Location
+      <input type="text" id="EquipLocation" placeholder="Where is it installed?" />
+    </label>
+
+    <label>
+      Asset ID
+      <input type="text" id="EquipAssetID" placeholder="Asset ID" />
+    </label>
+  </div>
+
+  <div class="field-row">
+    <label>
+      JH Sticker No
+      <input type="text" id="EquipJHStickerNo" placeholder="JH Sticker #" />
+    </label>
+  </div>
+
+  <!-- NOTES -->
+  <label>
+    Notes
+    <textarea id="notes" placeholder="Work performed, issues found, etc."></textarea>
+  </label>
+
+  <!-- STATUS -->
+  <label>
+    Status
+    <input type="text" id="status" placeholder="Completed / Pending / Follow-up" />
+  </label>
+
+
+</form>
+
+          <button type="submit" id="create-btn">
+            Save report
+            <span aria-hidden="true">➜</span>
+          </button>
+        </form>
+      </section>
+
+      <!-- RIGHT COLUMN – FETCH + RESULT -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Find a report</div>
+            <div class="card-subtitle">GET /report/{jobId} · retrieves a single report</div>
+          </div>
+          <span id="fetch-status" class="status-pill">Idle</span>
+        </div>
+
+        <form id="fetch-form">
+          <div class="field-row">
+            <label>
+              Job ID *
+              <input type="text" id="fetchJobId" required placeholder="Enter an existing job ID" />
+            </label>
+          </div>
+
+          <div class="field-row">
+            <button type="submit" id="fetch-btn">
+              Fetch report
+            </button>
+            <button type="button" class="btn-secondary" id="clear-btn">
+              Clear output
+            </button>
+          </div>
+        </form>
+
+        <div class="result-card">
+          <div class="result-header">
+            <span class="result-title">Response</span>
+          </div>
+          <pre id="result">{ }</pre>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div>Tip: use the same Job ID in both panels to save then fetch a report.</div>
+      <div class="api-url" id="api-url-display"></div>
+    </footer>
+  </div>
+
+  <script>
+    // 🔗 Your API base URL – update here if you change API Gateway
+    const API_BASE = "https://ulmjbpdrdc.execute-api.us-west-1.amazonaws.com";
+
+    const createForm = document.getElementById("create-form");
+    const fetchForm = document.getElementById("fetch-form");
+    const resultEl = document.getElementById("result");
+    const createStatus = document.getElementById("create-status");
+    const fetchStatus = document.getElementById("fetch-status");
+    const createBtn = document.getElementById("create-btn");
+    const fetchBtn = document.getElementById("fetch-btn");
+    const clearBtn = document.getElementById("clear-btn");
+    const apiUrlDisplay = document.getElementById("api-url-display");
+
+    apiUrlDisplay.textContent = API_BASE + "/report";
+
+    function setStatus(el, text, mode) {
+      el.textContent = text;
+      el.classList.remove("ok", "error");
+      if (mode === "ok") el.classList.add("ok");
+      if (mode === "error") el.classList.add("error");
+    }
+
+    function showResult(data) {
+      resultEl.textContent = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+    }
+
+    // -------- CREATE REPORT (POST) ----------
+    createForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const payload = {
+  // Required identifiers
+  jobId: document.getElementById("jobId").value.trim(),
+  technician: document.getElementById("technician").value.trim(),
+
+  // Activity + Date
+  EventDate: document.getElementById("EventDate").value,
+  ActivityType: document.getElementById("ActivityType").value,
+
+  // Customer info
+  CustomerFname: document.getElementById("CustomerFname").value.trim(),
+  CustomerLname: document.getElementById("CustomerLname").value.trim(),
+  CustomerAddressSt1: document.getElementById("CustomerAddressSt1").value.trim(),
+  CustomerAddressSt2: document.getElementById("CustomerAddressSt2").value.trim(),
+  CustomerCity: document.getElementById("CustomerCity").value.trim(),
+  CustomerZip: document.getElementById("CustomerZip").value.trim(),
+  CustomerCell: document.getElementById("CustomerCell").value.trim(),
+
+  // Equipment details
+  EquipID: document.getElementById("EquipID").value.trim(),
+  EquipManufacturer: document.getElementById("EquipManufacturer").value.trim(),
+  EquipModel: document.getElementById("EquipModel").value.trim(),
+  EquipSerial: document.getElementById("EquipSerial").value.trim(),
+  EquipLocation: document.getElementById("EquipLocation").value.trim(),
+  EquipAssetID: document.getElementById("EquipAssetID").value.trim(),
+  EquipJHStickerNo: document.getElementById("EquipJHStickerNo").value.trim(),
+
+  // Additional fields
+  notes: document.getElementById("notes").value.trim(),
+  status: document.getElementById("status").value.trim() || "Completed",
+
+  // Auto-generated timestamp
+  date: new Date().toISOString()
+};
+      setStatus(createStatus, "Saving…", null);
+      createBtn.disabled = true;
+
+      try {
+        const res = await fetch(`${API_BASE}/report`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          setStatus(createStatus, "Saved", "ok");
+        } else {
+          setStatus(createStatus, data.error || "Error", "error");
+        }
+        showResult(data);
+      } catch (err) {
+        setStatus(createStatus, "Network error", "error");
+        showResult("Error: " + err.message);
+      } finally {
+        createBtn.disabled = false;
+      }
+    });
+
+    // -------- FETCH REPORT (GET) ----------
+    fetchForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const jobId = document.getElementById("fetchJobId").value.trim();
+      if (!jobId) {
+        setStatus(fetchStatus, "Job ID required", "error");
+        return;
+      }
+
+      setStatus(fetchStatus, "Fetching…", null);
+      fetchBtn.disabled = true;
+
+      try {
+        const res = await fetch(`${API_BASE}/report/${encodeURIComponent(jobId)}`);
+        const data = await res.json();
+        if (res.ok) {
+          setStatus(fetchStatus, "Loaded", "ok");
+        } else {
+          setStatus(fetchStatus, data.error || "Error", "error");
+        }
+        showResult(data);
+      } catch (err) {
+        setStatus(fetchStatus, "Network error", "error");
+        showResult("Error: " + err.message);
+      } finally {
+        fetchBtn.disabled = false;
+      }
+    });
+
+    clearBtn.addEventListener("click", () => {
+      showResult("{ }");
+      setStatus(createStatus, "Idle");
+      setStatus(fetchStatus, "Idle");
+    });
+  </script>
 </body>
 </html>

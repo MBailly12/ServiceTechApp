@@ -1,16 +1,21 @@
 import json
 import os
-TABLE_NAME = os.environ.get("TABLE_NAME", "ServiceReports")
-
+import uuid
 import decimal
 import boto3
 import logging
+
 logger = logging.getLogger()
 logger.setLevel(os.environ.get("LOG_LEVEL", "INFO"))
 
-dynamodb = boto3.resource("dynamodb")
+# DynamoDB setup
 TABLE_NAME = os.environ.get("TABLE_NAME", "ServiceReports")
+dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(TABLE_NAME)
+
+# S3 setup
+s3 = boto3.client("s3")
+PHOTOS_BUCKET = os.environ.get("PHOTOS_BUCKET")
 
 
 class DecimalEncoder(json.JSONEncoder):
@@ -20,7 +25,8 @@ class DecimalEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-def build_response(status_code: int, body: dict | list):
+def build_response(status_code, body):
+    """Standard API Gateway response with CORS headers."""
     return {
         "statusCode": status_code,
         "headers": {
@@ -43,31 +49,85 @@ def get_method_and_path(event):
     http = request_context.get("http") or {}
 
     method = (
-        http.get("method") or
-        event.get("httpMethod") or
-        request_context.get("httpMethod")
+        http.get("method")
+        or event.get("httpMethod")
+        or request_context.get("httpMethod")
     )
 
     path = (
-        event.get("rawPath") or  # HTTP API / Lambda URL
-        event.get("path") or     # REST API
-        ""
+        event.get("rawPath")  # HTTP API / Lambda URL
+        or event.get("path")  # REST API
+        or ""
     )
 
     return (method or "").upper(), path
 
 
+def handle_photo_url(event):
+    """Generate a pre-signed S3 URL so the front end can upload a photo."""
+
+    if not PHOTOS_BUCKET:
+        return build_response(500, {"error": "PHOTOS_BUCKET not configured"})
+
+    path_params = event.get("pathParameters") or {}
+    job_id = path_params.get("jobId")
+
+    if not job_id:
+        return build_response(400, {"error": "jobId path parameter required"})
+
+    try:
+        body = json.loads(event.get("body") or "{}")
+    except json.JSONDecodeError:
+        body = {}
+
+    filename = (body.get("filename") or "photo.jpg").strip()
+    content_type = body.get("contentType") or "image/jpeg"
+
+    # Object key: group by jobId
+    key = f"reports/{job_id}/{uuid.uuid4()}-{filename}"
+
+    try:
+        upload_url = s3.generate_presigned_url(
+            "put_object",
+            Params={
+                "Bucket": PHOTOS_BUCKET,
+                "Key": key,
+                "ContentType": content_type,
+            },
+            ExpiresIn=300,  # 5 minutes
+        )
+    except Exception as e:
+        logger.exception("Failed to generate presigned URL")
+        return build_response(
+            500,
+            {"error": f"Failed to generate upload URL: {str(e)}"},
+        )
+
+    return build_response(
+        200,
+        {
+            "uploadUrl": upload_url,
+            "objectKey": key,
+            "photoLocation": f"s3://{PHOTOS_BUCKET}/{key}",
+        },
+    )
+
+
 def lambda_handler(event, context):
     # DEBUG: log the full event so we can see exactly what API Gateway is sending
-    print("Incoming event:", json.dumps(event))
+    logger.info("Incoming event: %s", json.dumps(event))
 
     method, path = get_method_and_path(event)
 
-    # Handle preflight
+    # 1) Photo upload URL route: POST /report/{jobId}/photo-url
+    if method == "POST" and path.startswith("/report/") and path.endswith("/photo-url"):
+        return handle_photo_url(event)
+
+    # 2) CORS preflight
     if method == "OPTIONS":
         return build_response(200, {"message": "ok"})
 
-    # ---------- POST /report ----------
+    # 3) Create / update report: POST /report
     if method == "POST" and path.endswith("/report"):
         try:
             body_raw = event.get("body") or "{}"
@@ -81,23 +141,22 @@ def lambda_handler(event, context):
 
         try:
             table.put_item(Item=body)
-        except Exception as e:
-            print("DynamoDB put_item error:", e)
+        except Exception:
+            logger.exception("DynamoDB put_item error")
             return build_response(500, {"error": "Failed to save report"})
 
         return build_response(200, {"message": "Report saved", "jobId": job_id})
 
-    # ---------- GET /report/{jobId} ----------
+    # 4) Get report by ID: GET /report/{jobId}
     if method == "GET" and "/report/" in path:
-        # supports /report/{jobId}
         job_id = path.split("/report/", 1)[-1]
         if not job_id:
             return build_response(400, {"error": "jobId missing in path"})
 
         try:
             resp = table.get_item(Key={"jobId": job_id})
-        except Exception as e:
-            print("DynamoDB get_item error:", e)
+        except Exception:
+            logger.exception("DynamoDB get_item error")
             return build_response(500, {"error": "Failed to fetch report"})
 
         item = resp.get("Item")
@@ -106,5 +165,8 @@ def lambda_handler(event, context):
 
         return build_response(200, item)
 
-    # ---------- Fallback ----------
-    return build_response(405, {"error": "Method not allowed", "method": method, "path": path})
+    # 5) Fallback for unknown routes
+    return build_response(
+        405,
+        {"error": "Method not allowed", "method": method, "path": path},
+    )

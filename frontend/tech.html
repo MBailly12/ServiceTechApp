@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ServiceTech – Technician View</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #020617;
+      --card: #020617;
+      --card-soft: #0b1220;
+      --accent: #3b82f6;
+      --accent-soft: #2563eb;
+      --accent-text: #eff6ff;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --border: #1f2937;
+      --danger: #f97373;
+      --success: #4ade80;
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #0b1120, #020617);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      background: linear-gradient(160deg, #020617 0, #020617 40%, #020617 100%);
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      box-shadow:
+        0 24px 60px rgba(15, 23, 42, 0.9),
+        0 0 0 1px rgba(15, 23, 42, 0.5);
+      padding: 14px 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+    }
+
+    .logo-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #facc15, #fb923c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #0f172a;
+      font-size: 16px;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.5);
+    }
+
+    .title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .title h1 {
+      font-size: 17px;
+      margin: 0;
+    }
+
+    .title span {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .pill {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(34, 197, 94, 0.7);
+      background: rgba(22, 163, 74, 0.2);
+      color: #bbf7d0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .section {
+      background: radial-gradient(circle at top left, #020617, #020617);
+      border-radius: var(--radius);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: 10px 10px 9px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .section-subtitle {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .status-chip {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .status-chip.ok {
+      border-color: rgba(34, 197, 94, 0.7);
+      color: #bbf7d0;
+      background: rgba(34, 197, 94, 0.18);
+    }
+
+    .status-chip.error {
+      border-color: rgba(248, 113, 113, 0.8);
+      color: #fecaca;
+      background: rgba(248, 113, 113, 0.22);
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select,
+    textarea {
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 8px 10px;
+      font-size: 13px;
+      background: #020617;
+      color: var(--text);
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.7);
+      background: #020617;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+      max-height: 160px;
+      line-height: 1.35;
+    }
+
+    .row {
+      display: flex;
+      gap: 7px;
+    }
+
+    .row > label {
+      flex: 1;
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 9px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+      color: var(--accent-text);
+      box-shadow: 0 10px 28px rgba(37, 99, 235, 0.7);
+      margin-top: 4px;
+      width: 100%;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow: 0 14px 34px rgba(37, 99, 235, 0.8);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.6);
+    }
+
+    button[disabled] {
+      opacity: 0.6;
+      cursor: default;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-secondary { 
+      background: transparent;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--muted);
+      box-shadow: none;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .btn-row button {
+      width: 50%;
+    }
+
+    .pill-small {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--muted);
+    }
+
+    .result-box {
+      background: #020617;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 8px 8px 7px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+      max-height: 170px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    footer {
+      margin-top: 3px;
+      font-size: 10px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .api-badge {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      color: #bfdbfe;
+    }
+
+    h3 {
+      font-size: 12px;
+      margin: 4px 0 2px;
+      color: #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <div class="logo-badge">ST</div>
+        <div class="title">
+          <h1>Service Report</h1>
+          <span>Technician view</span>
+        </div>
+      </div>
+      <span class="pill">Prod</span>
+    </header>
+
+    <main>
+      <!-- Create / Update Report -->
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Create / update report</div>
+            <div class="section-subtitle">Job, customer, equipment, and work notes</div>
+          </div>
+          <span id="create-status" class="status-chip">Idle</span>
+        </div>
+
+        <form id="create-form">
+
+          <!-- JOB + ACTIVITY -->
+          <div class="row">
+            <label>
+              Job ID *
+              <input type="text" id="jobId" required placeholder="JOB-12345" />
+            </label>
+            <label>
+              Technician
+              <input type="text" id="technician" placeholder="Your name" />
+            </label>
+          </div>
+
+          <div class="row">
+            <label>
+              Event Date
+              <input type="date" id="EventDate" />
+            </label>
+            <label>
+              Activity Type
+              <select id="ActivityType">
+                <option value="">Select type</option>
+                <option value="Install">Install</option>
+                <option value="Preventative Maintenance">Preventative Maintenance</option>
+                <option value="Eval">Eval</option>
+                <option value="Repair">Repair</option>
+              </select>
+            </label>
+          </div>
+
+          <!-- CUSTOMER -->
+          <h3>Customer</h3>
+          <div class="row">
+            <label>
+              First name
+              <input type="text" id="CustomerFname" placeholder="First name" />
+            </label>
+            <label>
+              Last name
+              <input type="text" id="CustomerLname" placeholder="Last name" />
+            </label>
+          </div>
+
+          <label>
+            Address line 1
+            <input type="text" id="CustomerAddressSt1" placeholder="Street address" />
+          </label>
+          <label>
+            Address line 2
+            <input type="text" id="CustomerAddressSt2" placeholder="Suite / Apt / Unit" />
+          </label>
+
+          <div class="row">
+            <label>
+              City
+              <input type="text" id="CustomerCity" placeholder="City" />
+            </label>
+            <label>
+              Zip
+              <input type="text" id="CustomerZip" placeholder="Zip code" />
+            </label>
+          </div>
+
+          <label>
+            Customer cell
+            <input type="text" id="CustomerCell" placeholder="Phone number" />
+          </label>
+
+          <!-- EQUIPMENT -->
+          <h3>Equipment</h3>
+          <div class="row">
+            <label>
+              Equipment ID
+              <input type="text" id="EquipID" placeholder="Equipment ID" />
+            </label>
+            <label>
+              Manufacturer
+              <input type="text" id="EquipManufacturer" placeholder="Manufacturer" />
+            </label>
+          </div>
+
+          <div class="row">
+            <label>
+              Model
+              <input type="text" id="EquipModel" placeholder="Model" />
+            </label>
+            <label>
+              Serial #
+              <input type="text" id="EquipSerial" placeholder="Serial number" />
+            </label>
+          </div>
+
+          <div class="row">
+            <label>
+              Location
+              <input type="text" id="EquipLocation" placeholder="Location" />
+            </label>
+            <label>
+              Asset ID
+              <input type="text" id="EquipAssetID" placeholder="Asset ID" />
+            </label>
+          </div>
+
+          <label>
+            JH Sticker #
+            <input type="text" id="EquipJHStickerNo" placeholder="Sticker number" />
+          </label>
+
+          <!-- WORK + STATUS -->
+          <h3>Work summary</h3>
+          <label>
+            Notes
+            <textarea id="notes" placeholder="What was done? Any issues, parts, or follow-up?"></textarea>
+          </label>
+
+          <label>
+            Status
+            <input type="text" id="status" placeholder="Completed / Pending / Follow-up" />
+          </label>
+
+          <h3>Photos</h3>
+<label>
+  Attach photo
+  <input type="file" id="photoFile" accept="image/*" />
+</label>
+<button type="button" class="btn-secondary" id="upload-photo-btn">
+  Upload photo for this job
+</button>
+<span id="photo-upload-status" class="status-chip" style="margin-top:4px;">No photo uploaded</span>
+
+          <button type="submit" id="create-btn">
+            Save report
+          </button>
+        </form>
+      </section>
+
+      <!-- LOOKUP + RESPONSE -->
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Find existing report</div>
+            <div class="section-subtitle">Quick lookup by Job ID</div>
+          </div>
+          <span id="fetch-status" class="status-chip">Idle</span>
+        </div>
+
+        <form id="fetch-form">
+          <label>
+            Job ID *
+            <input type="text" id="fetchJobId" placeholder="JOB-12345" required />
+          </label>
+
+          <div class="btn-row">
+            <button type="submit" id="fetch-btn">
+              Fetch
+            </button>
+            <button type="button" class="btn-secondary" id="clear-btn">
+              Clear
+            </button>
+          </div>
+        </form>
+
+        <div class="result-box">
+          <div class="result-header">
+            <span class="pill-small">Response preview</span>
+          </div>
+          <pre id="result">{ }</pre>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>Tech view · job-based entry</span>
+      <span class="api-badge" id="api-url-display"></span>
+    </footer>
+  </div>
+
+  <script>
+//  🔗 Your API base URL – change here if you change API Gateway
+    const API_BASE = "https://ulmjbpdrdc.execute-api.us-west-1.amazonaws.com";
+    const createForm = document.getElementById("create-form");
+    const fetchForm = document.getElementById("fetch-form");
+    const resultEl = document.getElementById("result");
+    const createStatus = document.getElementById("create-status");
+    const fetchStatus = document.getElementById("fetch-status");
+    const createBtn = document.getElementById("create-btn");
+    const fetchBtn = document.getElementById("fetch-btn");
+    const clearBtn = document.getElementById("clear-btn");
+    const apiUrlDisplay = document.getElementById("api-url-display");
+    const uploadPhotoBtn = document.getElementById("upload-photo-btn");
+    const photoFileInput = document.getElementById("photoFile");
+    const photoUploadStatus = document.getElementById("photo-upload-status");
+
+    apiUrlDisplay.textContent = API_BASE + "/report";
+
+    function setStatus(el, text, mode) {
+      el.textContent = text;
+      el.classList.remove("ok", "error");
+      if (mode === "ok") el.classList.add("ok");
+      if (mode === "error") el.classList.add("error");
+    }
+
+    function showResult(data) {
+      resultEl.textContent =
+        typeof data === "string" ? data : JSON.stringify(data, null, 2);
+    }
+
+    // CREATE / UPDATE REPORT
+    createForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const jobId = document.getElementById("jobId").value.trim();
+      if (!jobId) {
+        setStatus(createStatus, "Job ID required", "error");
+        return;
+      }
+
+      const payload = {
+        // Required identifiers
+        jobId: jobId,
+        technician: document.getElementById("technician").value.trim(),
+
+        // Activity + Date
+        EventDate: document.getElementById("EventDate").value,
+        ActivityType: document.getElementById("ActivityType").value,
+
+        // Customer info
+        CustomerFname: document.getElementById("CustomerFname").value.trim(),
+        CustomerLname: document.getElementById("CustomerLname").value.trim(),
+        CustomerAddressSt1: document
+          .getElementById("CustomerAddressSt1")
+          .value.trim(),
+        CustomerAddressSt2: document
+          .getElementById("CustomerAddressSt2")
+          .value.trim(),
+        CustomerCity: document.getElementById("CustomerCity").value.trim(),
+        CustomerZip: document.getElementById("CustomerZip").value.trim(),
+        CustomerCell: document.getElementById("CustomerCell").value.trim(),
+
+        // Equipment details
+        EquipID: document.getElementById("EquipID").value.trim(),
+        EquipManufacturer: document
+          .getElementById("EquipManufacturer")
+          .value.trim(),
+        EquipModel: document.getElementById("EquipModel").value.trim(),
+        EquipSerial: document.getElementById("EquipSerial").value.trim(),
+        EquipLocation: document.getElementById("EquipLocation").value.trim(),
+        EquipAssetID: document.getElementById("EquipAssetID").value.trim(),
+        EquipJHStickerNo: document
+          .getElementById("EquipJHStickerNo")
+          .value.trim(),
+
+        // Work + status
+        notes: document.getElementById("notes").value.trim(),
+        status:
+          document.getElementById("status").value.trim() || "Completed",
+
+        // Timestamp for this entry
+        date: new Date().toISOString(),
+      };
+
+      setStatus(createStatus, "Saving…", null);
+      createBtn.disabled = true;
+
+      try {
+        const res = await fetch(`${API_BASE}/report`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          setStatus(createStatus, "Saved", "ok");
+        } else {
+          setStatus(
+            createStatus,
+            data.error || "Save failed",
+            "error"
+          );
+        }
+        showResult(data);
+      } catch (err) {
+        setStatus(createStatus, "Network error", "error");
+        showResult("Error: " + err.message);
+      } finally {
+        createBtn.disabled = false;
+      }
+    });
+
+    // FETCH REPORT
+    fetchForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const jobId = document.getElementById("fetchJobId").value.trim();
+      if (!jobId) {
+        setStatus(fetchStatus, "Job ID required", "error");
+        return;
+      }
+
+      setStatus(fetchStatus, "Fetching…", null);
+      fetchBtn.disabled = true;
+
+      try {
+        const res = await fetch(
+          `${API_BASE}/report/${encodeURIComponent(jobId)}`
+        );
+        const data = await res.json();
+        if (res.ok) {
+          setStatus(fetchStatus, "Loaded", "ok");
+        } else {
+          setStatus(fetchStatus, data.error || "Not found", "error");
+        }
+        showResult(data);
+      } catch (err) {
+        setStatus(fetchStatus, "Network error", "error");
+        showResult("Error: " + err.message);
+      } finally {
+        fetchBtn.disabled = false;
+      }
+    });
+
+   clearBtn.addEventListener("click", () => {
+  showResult("{ }");
+  setStatus(createStatus, "Idle");
+  setStatus(fetchStatus, "Idle");
+  fetchForm.reset();
+  photoUploadStatus.textContent = "No photo uploaded";
+  photoUploadStatus.classList.remove("ok", "error");
+});
+
+uploadPhotoBtn.addEventListener("click", async () => {
+  const jobId = document.getElementById("jobId").value.trim();
+  const file = photoFileInput.files[0];
+
+  if (!jobId) {
+    setStatus(createStatus, "Set Job ID before uploading photo", "error");
+    return;
+  }
+
+  if (!file) {
+    photoUploadStatus.textContent = "No file selected";
+    photoUploadStatus.classList.remove("ok", "error");
+    return;
+  }
+
+  photoUploadStatus.textContent = "Requesting upload URL…";
+  photoUploadStatus.classList.remove("ok", "error");
+
+  try {
+    // 1) Ask backend for a pre-signed URL
+    const urlRes = await fetch(
+      `${API_BASE}/report/${encodeURIComponent(jobId)}/photo-url`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename: file.name,
+          contentType: file.type || "image/jpeg",
+        }),
+      }
+    );
+
+    const urlData = await urlRes.json();
+    if (!urlRes.ok) {
+      photoUploadStatus.textContent =
+        urlData.error || "Failed to get upload URL";
+      photoUploadStatus.classList.add("error");
+      return;
+    }
+
+    const uploadUrl = urlData.uploadUrl;
+
+    photoUploadStatus.textContent = "Uploading photo…";
+
+    // 2) Upload file directly to S3
+    const putRes = await fetch(uploadUrl, {
+      method: "PUT",
+      headers: {
+        "Content-Type": file.type || "image/jpeg",
+      },
+      body: file,
+    });
+
+    if (!putRes.ok) {
+      photoUploadStatus.textContent = "Upload failed";
+      photoUploadStatus.classList.add("error");
+      return;
+    }
+
+    photoUploadStatus.textContent = "Photo uploaded";
+    photoUploadStatus.classList.add("ok");
+
+    showResult({
+      message: "Photo uploaded",
+      jobId: jobId,
+      objectKey: urlData.objectKey,
+      photoLocation: urlData.photoLocation,
+    });
+  } catch (err) {
+    photoUploadStatus.textContent = "Error uploading photo";
+    photoUploadStatus.classList.add("error");
+    showResult("Photo upload error: " + err.message);
+  }
+});
+</script>
+</body>
+</html>
