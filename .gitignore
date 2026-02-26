@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+.env
+
+# macOS
+.DS_Store
+
+# VSCode / IDEs
+.vscode/
+.idea/
+
+# Zip packages / build artifacts
+*.zip
+dist/
+build/
