@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ServiceTech AutoReporter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+  <h1>ServiceTech AutoReporter</h1>
+
+  <h2>Create Service Report</h2>
+  <form id="create-form">
+    <label>
+      Job ID:
+      <input type="text" id="jobId" required />
+    </label>
+    <br />
+    <label>
+      Technician:
+      <input type="text" id="technician" />
+    </label>
+    <br />
+    <label>
+      Customer:
+      <input type="text" id="customer" />
+    </label>
+    <br />
+    <label>
+      Notes:
+      <textarea id="notes"></textarea>
+    </label>
+    <br />
+    <button type="submit">Save Report</button>
+  </form>
+
+  <h2>Fetch Service Report</h2>
+  <form id="fetch-form">
+    <label>
+      Job ID:
+      <input type="text" id="fetchJobId" required />
+    </label>
+    <button type="submit">Get Report</button>
+  </form>
+
+  <pre id="result"></pre>
+
+  <!-- JS wiring will come later -->
+</body>
+</html>
