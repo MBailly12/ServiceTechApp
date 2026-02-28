@@ -2,6 +2,7 @@
 
 This directory contains the backend Lambda code for the service reports app.
 This is JL adding a useless comment to this file
+This is MB nodding to your comment
 
 ## Lambda function
 
