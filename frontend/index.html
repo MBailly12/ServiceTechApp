@@ -454,6 +454,17 @@
     </label>
   </div>
 
+  <!-- PHOTOS -->
+<label>
+  Photos (max 10)
+  <input type="file" id="photos" accept="image/*" multiple />
+  <small style="color: var(--text-muted); display:block; margin-top:4px;">
+    Select up to 10 images. They will upload to S3, then attach to this report on Finalize.
+  </small>
+</label>
+
+<div id="photo-list" style="display:flex; flex-direction:column; gap:6px; margin-top:6px;"></div>
+
   <!-- NOTES -->
   <label>
     Notes
